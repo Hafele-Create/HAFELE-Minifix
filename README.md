@@ -1,1 +1,1 @@
-# HAFELE-Minifix
+# hafele-minifix
