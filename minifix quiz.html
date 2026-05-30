@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест — Minifix HÄFELE</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --red: #CC1228; --bg: #f0f0f0; --dark: #1a1a1a; --muted: #888; --border: #e5e5e5; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); font-family: 'PT Sans', sans-serif; color: var(--dark); min-height: 100vh; display: flex; justify-content: center; padding: 20px 16px 48px; }
+  .wrap { width: 100%; max-width: 520px; }
+  .card { background: #fff; border-radius: 2px; overflow: hidden; box-shadow: 0 4px 28px rgba(0,0,0,0.12); }
+  .top-stripe { background: var(--red); height: 4px; }
+  .card-header { padding: 18px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 34px; letter-spacing: 6px; color: #b0b0b0; line-height: 1; text-transform: uppercase; }
+  .logo .a { color: var(--red); }
+  .header-tag { font-family: 'Oswald', sans-serif; font-size: 11px; color: #bbb; letter-spacing: 3px; text-transform: uppercase; }
+  .q-counter { font-family: 'Oswald', sans-serif; font-size: 14px; color: var(--muted); letter-spacing: 2px; }
+  .q-counter b { color: var(--red); font-family: 'Oswald', sans-serif; }
+  .progress-bar { height: 3px; background: #eee; }
+  .progress-fill { height: 100%; background: var(--red); transition: width 0.4s ease; }
+  .card-body { padding: 28px 28px 24px; }
+  .screen { display: none; }
+  .screen.active { display: block; animation: up 0.3s ease; }
+  @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  .intro-badge { background: var(--dark); border-radius: 4px; padding: 18px 20px; display: flex; align-items: center; gap: 18px; margin-bottom: 22px; }
+  .badge-year { font-family: 'Oswald', sans-serif; font-size: 44px; font-weight: 700; color: var(--red); line-height: 1; flex-shrink: 0; }
+  .badge-text { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+  .badge-text strong { color: #fff; display: block; margin-bottom: 2px; }
+  .intro-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 4px; color: var(--red); text-transform: uppercase; text-align: center; margin-bottom: 8px; }
+  .intro-title { font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 700; line-height: 1.08; text-align: center; color: var(--dark); margin-bottom: 12px; }
+  .intro-title span { color: var(--red); }
+  .intro-sub { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.65; margin-bottom: 22px; }
+  .tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
+  .tag { background: #f5f5f5; border: 1px solid #e0e0e0; color: #666; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; }
+
+  .q-label { font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--red); text-transform: uppercase; margin-bottom: 8px; }
+  .q-text { font-family: 'Oswald', sans-serif; font-size: 24px; font-weight: 600; line-height: 1.15; color: var(--dark); margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .opt { background: #fafafa; border: 1.5px solid var(--border); border-radius: 4px; padding: 13px 16px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; transition: all 0.18s; -webkit-tap-highlight-color: transparent; }
+  .opt:hover { border-color: var(--red); background: #fff5f5; }
+  .opt.selected { border-color: var(--red); background: #fff0f2; }
+  .opt-dot { width: 18px; height: 18px; min-width: 18px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all 0.18s; flex-shrink: 0; }
+  .opt.selected .opt-dot { border-color: var(--red); background: var(--red); }
+  .opt.selected .opt-dot::after { content: ''; width: 6px; height: 6px; background: #fff; border-radius: 50%; }
+  .opt-text { font-size: 13px; font-weight: 700; color: #444; line-height: 1.4; }
+  .opt-hint { font-size: 11px; color: var(--red); font-style: italic; margin-top: 3px; font-weight: 400; display: none; }
+  .opt.selected .opt-hint { display: block; }
+  .opt.selected .opt-text { color: var(--dark); }
+
+  .btn { width: 100%; padding: 15px; border-radius: 3px; font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.18s; margin-top: 20px; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { background: #a80e20; }
+  .btn-red:disabled { background: #ddd; color: #aaa; cursor: not-allowed; }
+  .btn-out { background: transparent; color: var(--red); border: 1.5px solid var(--red); margin-top: 10px; }
+  .btn-out:hover { background: #fff5f5; }
+
+  .res-hero { background: var(--dark); margin: -28px -28px 24px; padding: 28px; text-align: center; }
+  .res-emoji { font-size: 48px; margin-bottom: 10px; }
+  .res-title { font-family: 'Oswald', sans-serif; font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 8px; line-height: 1.1; }
+  .res-sub { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+  .sec-label { font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--red); text-transform: uppercase; margin-bottom: 12px; }
+  .pain-list { margin-bottom: 20px; }
+  .pain-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #444; line-height: 1.5; }
+  .pain-item:last-child { border-bottom: none; }
+  .pdot { width: 6px; height: 6px; background: var(--red); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .fact-strip { background: var(--dark); border-radius: 4px; padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; }
+  .strip-year { font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 700; color: var(--red); flex-shrink: 0; }
+  .strip-text { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.55; }
+  .strip-text strong { color: #fff; }
+  .sol-box { background: #fff5f6; border: 1.5px solid var(--red); border-radius: 4px; padding: 18px 20px; margin-bottom: 20px; }
+  .sol-title { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--red); margin-bottom: 8px; }
+  .sol-text { font-size: 13px; color: #555; line-height: 1.65; }
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<div class="top-stripe"></div>
+
+<div class="screen active" id="s-intro">
+  <div class="card-header">
+    <div class="logo">H<span class="a">Ä</span>FELE</div>
+    <div class="header-tag">Minifix Test</div>
+  </div>
+  <div class="card-body">
+    <div class="intro-badge">
+      <div class="badge-year">1983</div>
+      <div class="badge-text"><strong>HÄFELE изобрела Minifix.</strong>IKEA и все крупные мировые фабрики используют именно этот стандарт. Всё остальное — копии.</div>
+    </div>
+    <div class="intro-eyebrow">Бесплатная диагностика</div>
+    <div class="intro-title">Ваш <span>Minifix</span><br>работает или<br>подводит?</div>
+    <div class="intro-sub">8 вопросов — и вы узнаете, сколько теряете из-за некачественных эксцентриковых стяжек</div>
+    <div class="tags">
+      <div class="tag">⏱ 2 минуты</div>
+      <div class="tag">8 вопросов</div>
+      <div class="tag">Бесплатно</div>
+    </div>
+    <button class="btn btn-red" onclick="start()">Начать тест →</button>
+  </div>
+</div>
+
+<div class="screen" id="s-quiz">
+  <div class="card-header">
+    <div class="logo">H<span class="a">Ä</span>FELE</div>
+    <div class="q-counter">ВОПРОС <b id="qnum">1</b> / 8</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:12.5%"></div></div>
+  <div class="card-body">
+    <div class="q-label" id="qlabel"></div>
+    <div class="q-text" id="qtext"></div>
+    <div class="options" id="opts"></div>
+    <button class="btn btn-red" id="btn-next" disabled onclick="next()">Далее →</button>
+  </div>
+</div>
+
+<div class="screen" id="s-result">
+  <div class="card-header">
+    <div class="logo">H<span class="a">Ä</span>FELE</div>
+    <div class="header-tag">Результат</div>
+  </div>
+  <div class="card-body">
+    <div class="res-hero">
+      <div class="res-emoji" id="r-emoji"></div>
+      <div class="res-title" id="r-title"></div>
+      <div class="res-sub" id="r-sub"></div>
+    </div>
+    <div class="pain-list">
+      <div class="sec-label">Ваши болевые точки</div>
+      <div id="r-pains"></div>
+    </div>
+    <div class="fact-strip">
+      <div class="strip-year">1983</div>
+      <div class="strip-text"><strong>HÄFELE — изобретатель Minifix.</strong> Копии — это чужой брак за ваши деньги и репутацию.</div>
+    </div>
+    <div class="sol-box">
+      <div class="sol-title">Решение — Minifix HÄFELE</div>
+      <div class="sol-text" id="r-sol"></div>
+    </div>
+    <button class="btn btn-red" onclick="contact()">Получить предложение →</button>
+    <button class="btn btn-out" onclick="restart()">Пройти заново</button>
+  </div>
+</div>
+
+</div></div>
+<script>
+const Q = [
+  { label: "Текущие стяжки", text: "Какие эксцентриковые стяжки Minifix вы используете сейчас?",
+    opts: [
+      { t: "Китайские — дёшево и доступно", h: "Дешёвый Minifix даёт люфт, трескается и желтеет", score: 4, pain: "Используете китайские копии Minifix — источник брака и рекламаций" },
+      { t: "Разные поставщики — нет стабильного", h: "Каждая партия непредсказуема по размеру и качеству", score: 3, pain: "Нет единого стандарта — качество Minifix от партии к партии разное" },
+      { t: "Европейские, но не HÄFELE", score: 2 },
+      { t: "Уже работаем с HÄFELE Minifix", score: 1 },
+    ]
+  },
+  { label: "Люфт и посадка", text: "Бывает, что Minifix не зажимается до конца или проворачивается при установке?",
+    opts: [
+      { t: "Да, часто — переделываем корпус", h: "Некачественный Minifix = потери времени и материала", score: 4, pain: "Регулярный люфт Minifix тормозит производство и создаёт скрытый брак" },
+      { t: "Иногда — несколько раз в неделю", h: "Даже редкий люфт со временем ведёт к рекламациям", score: 3, pain: "Периодический люфт Minifix незаметно снижает качество сборки" },
+      { t: "Редко, но случается", score: 2 },
+      { t: "Minifix садится чётко — проблем нет", score: 1 },
+    ]
+  },
+  { label: "Трещины корпуса", text: "Случалось ли, что корпус Minifix трескался прямо при затяжке?",
+    opts: [
+      { t: "Да, бывает — особенно при сильной затяжке", h: "Хрупкий сплав вместо цинка — брак прямо на сборке", score: 4, pain: "Корпус Minifix трескается при затяжке — дешёвый сплав, не цинковое литьё" },
+      { t: "Редко, но видел своими глазами", h: "Один треснувший Minifix — это уже брак готового корпуса", score: 3, pain: "Хрупкость корпуса Minifix — скрытый риск для каждого изделия" },
+      { t: "Не замечал", score: 2 },
+      { t: "Никогда — стяжка держится на ура", score: 1 },
+    ]
+  },
+  { label: "Рекламации от клиентов", text: "Жаловались ли клиенты, что корпус мебели расшатался или разошёлся по стяжке?",
+    opts: [
+      { t: "Да, постоянно — это наша головная боль", h: "Каждая рекламация стоит в 10 раз дороже хорошей стяжки", score: 4, pain: "Постоянные рекламации по Minifix разрушают репутацию и съедают прибыль" },
+      { t: "Иногда — решаем тихо, без огласки", h: "Молчащий клиент уже ищет другого мебельщика", score: 3, pain: "Скрытые рекламации по Minifix — потери без очевидной причины" },
+      { t: "Единичные случаи за всё время", score: 2 },
+      { t: "Жалоб по стяжкам не было ни разу", score: 1 },
+    ]
+  },
+  { label: "Глубина посадки", text: "Бывает ли, что болт Minifix не достаёт до эксцентрика и соединение не затягивается?",
+    opts: [
+      { t: "Да, часто — болт крутится вхолостую", h: "Неправильная глубина посадки = корпус держится «на честном слове»", score: 4, pain: "Болт Minifix не достаёт до эксцентрика — соединение ненадёжно с первого дня" },
+      { t: "Иногда — приходится переставлять или подбирать болт", h: "Каждая подгонка болта — потеря времени и риск брака", score: 3, pain: "Нестабильная глубина посадки Minifix вынуждает подбирать болты вручную" },
+      { t: "Редко, но приходилось сталкиваться", score: 2 },
+      { t: "Нет — болт всегда точно входит в эксцентрик", score: 1 },
+    ]
+  },
+  { label: "Ресурс разборки", text: "Клиенты просят разборную мебель — что происходит с Minifix после повторной сборки?",
+    opts: [
+      { t: "Корпус расшатывается — Minifix не выдерживает", h: "Китайский Minifix рассчитан на 5–10 циклов максимум", score: 4, pain: "Minifix не выдерживает повторную сборку — рекламация гарантирована при переезде" },
+      { t: "Появляется люфт после 2–3 разборок", h: "Потеря прочности = потеря клиента и его рекомендаций", score: 3, pain: "Ограниченный ресурс Minifix отрезает вас от рынка разборной мебели" },
+      { t: "В основном держится, иногда чуть люфтит", score: 2 },
+      { t: "50+ разборок — соединение как новое", score: 1 },
+    ]
+  },
+  { label: "Стабильность партий", text: "Бывает ли, что новая партия Minifix чуть другого размера и сборка идёт туже?",
+    opts: [
+      { t: "Да, постоянно — каждая партия как лотерея", h: "Разброс размеров = перенастройка станков каждый раз", score: 4, pain: "Нестабильные партии Minifix вынуждают перекалибровывать оборудование" },
+      { t: "Иногда — замечаю небольшой разброс", h: "Даже 0.1 мм разницы ломает точность сборки", score: 3, pain: "Разброс размеров Minifix снижает скорость и точность производства" },
+      { t: "Редко, почти не замечаю", score: 2 },
+      { t: "Каждая партия идентична — полная стабильность", score: 1 },
+    ]
+  },
+  { label: "Цена vs репутация", text: "Что реально происходит, когда клиент возвращает мебель из-за Minifix?",
+    opts: [
+      { t: "Потеря клиента навсегда + плохой отзыв в соцсетях", score: 1 },
+      { t: "Переделываем за свой счёт — бьёт по бюджету", h: "Одна рекламация по Minifix обходится в 10× дороже разницы в цене стяжки", score: 4, pain: "Стоимость одной рекламации по Minifix в 10× дороже разницы в цене стяжки" },
+      { t: "Решаем тихо — но клиент уже не тот", h: "Скрытые потери лояльности страшнее открытых рекламаций", score: 3, pain: "Скрытые рекламации по Minifix разрушают лояльность и сарафанное радио" },
+      { t: "Такого не бывало — всё держится отлично", score: 1 },
+    ]
+  }
+];
+
+let cur = 0, ans = [], score = 0, pains = [];
+
+function start() { show('s-quiz'); render(); }
+
+function render() {
+  const q = Q[cur];
+  document.getElementById('qnum').textContent = cur + 1;
+  document.getElementById('qlabel').textContent = q.label;
+  document.getElementById('qtext').textContent = q.text;
+  document.getElementById('prog').style.width = ((cur + 1) / Q.length * 100) + '%';
+  const c = document.getElementById('opts');
+  c.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const d = document.createElement('div');
+    d.className = 'opt';
+    d.innerHTML = '<div class="opt-dot"></div><div class="opt-body"><div class="opt-text">' + o.t + '</div>' + (o.h ? '<div class="opt-hint">' + o.h + '</div>' : '') + '</div>';
+    d.onclick = function() { pick(i); };
+    c.appendChild(d);
+  });
+  document.getElementById('btn-next').disabled = true;
+  ans[cur] = null;
+}
+
+function pick(i) {
+  const els = document.querySelectorAll('.opt');
+  if (ans[cur] !== null) {
+    const prev = Q[cur].opts[ans[cur]];
+    score -= prev.score || 0;
+    if (prev.pain) pains = pains.filter(function(p) { return p !== prev.pain; });
+  }
+  els.forEach(function(e) { e.classList.remove('selected'); });
+  els[i].classList.add('selected');
+  ans[cur] = i;
+  const o = Q[cur].opts[i];
+  score += o.score || 0;
+  if (o.pain && pains.indexOf(o.pain) === -1) pains.push(o.pain);
+  document.getElementById('btn-next').disabled = false;
+}
+
+function next() {
+  if (ans[cur] === null) return;
+  cur++;
+  if (cur >= Q.length) result(); else render();
+}
+
+function result() {
+  show('s-result');
+  var emoji, title, sub, sol;
+  if (score >= 24) {
+    emoji = '🚨';
+    title = 'ВЫ ТЕРЯЕТЕ ДЕНЬГИ И КЛИЕНТОВ';
+    sub = 'Ваши Minifix — источник брака и рекламаций. Это обходится намного дороже, чем кажется.';
+    sol = 'Minifix HÄFELE — оригинал с 1983 года. Точность ±0.01 мм, цинковое литьё, 50+ циклов сборки, нагрузка 1500 Н, покрытие без пожелтения. Именно этот стандарт использует IKEA и весь мировой рынок. Один переход — и рекламации по Minifix уходят навсегда.';
+  } else if (score >= 15) {
+    emoji = '⚠️';
+    title = 'РИСКИ ЕСТЬ — ПОКА НЕ ОЧЕВИДНЫЕ';
+    sub = 'Проблемы с Minifix уже накапливаются. Вы просто ещё не считаете их реальную стоимость.';
+    sol = 'Minifix HÄFELE закроет все слабые точки до того, как они превратятся в рекламации. Стабильные партии, точная посадка ±0.01 мм, надёжное покрытие — это стандарт IKEA с 1983 года.';
+  } else {
+    emoji = '✅';
+    title = 'ВЫ ЦЕНИТЕ КАЧЕСТВО';
+    sub = 'Вы понимаете: Minifix — это не просто стяжка. Это основа репутации вашей мебели.';
+    sol = 'Minifix HÄFELE подтвердит ваш стандарт и даст аргумент в переговорах с крупными заказчиками. Узнайте об условиях поставки в Казахстане.';
+  }
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-title').textContent = title;
+  document.getElementById('r-sub').textContent = sub;
+  document.getElementById('r-sol').textContent = sol;
+  var c = document.getElementById('r-pains');
+  c.innerHTML = '';
+  if (!pains.length) pains.push('Потенциал для повышения качества и репутации производства');
+  pains.forEach(function(p) { c.innerHTML += '<div class="pain-item"><div class="pdot"></div><div>' + p + '</div></div>'; });
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+function contact() { window.open('https://www.instagram.com/hafele_shymkent', '_blank'); }
+function restart() { cur = 0; ans = []; score = 0; pains = []; show('s-intro'); }
+</script>
+</body>
+</html>
